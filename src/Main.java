@@ -6,6 +6,8 @@ import java.util.ListIterator;
 import java.util.StringTokenizer;
 
 public class Main {
+	
+	private static List<String> elementsList;
 
 	public static void main(String[] args) {
 		System.out.println("Enter line in regular format");
@@ -44,75 +46,78 @@ public class Main {
 	
 	public static String computeExpression(String expression) throws Exception {
 		StringTokenizer st = new StringTokenizer(expression);
-		List<String> elementsList = new ArrayList<String>();
+		elementsList = new ArrayList<String>();
         while (st.hasMoreTokens()) {
         	elementsList.add(st.nextToken());
         }
+        while(elementsList.size() > 1) {
         for(int i = 0; i < 2; i++) {
-			if (elementsList.size() == 1) {
-				break;
-			}
-				ListIterator<String> it = elementsList.listIterator();
-				while (it.hasNext()) {
-					int nextIndex = it.nextIndex();
-					String next = it.next();
-					if (i == 0 && next.equals("*")) {
-						if(nextIndex - 1 < 0 ||
-						   nextIndex + 1 >= elementsList.size()) {
-							throw new Exception("Invalid input string");
-						}
-						System.out.println(elementsList.get(nextIndex - 1));
-						System.out.println(elementsList.get(nextIndex + 1));
-						int res;
-						try {
-							res = Integer.parseInt(elementsList.get(nextIndex - 1)) *
-							      Integer.parseInt(elementsList.get(nextIndex + 1));
-						}
-						catch(NumberFormatException nfe) {
-							throw new Exception("Invalid operand");
-						}
-						elementsList.set(nextIndex, String.valueOf(res));
-						elementsList.remove(nextIndex + 1);
-						elementsList.remove(nextIndex - 1);
-						break;
-					}
-					else if(i == 0 && next.equals("/")) {
-						System.out.println(elementsList.get(nextIndex - 1));
-						System.out.println(elementsList.get(nextIndex + 1));
-						if(Integer.parseInt(elementsList.get(nextIndex + 1)) == 0) {
-							throw new Exception("Cannot divide by zero");
-						}
-						int res = Integer.parseInt(elementsList.get(nextIndex - 1)) /
-								  Integer.parseInt(elementsList.get(nextIndex + 1));
-						elementsList.set(nextIndex, String.valueOf(res));
-						elementsList.remove(nextIndex + 1);
-						elementsList.remove(nextIndex - 1);
-						break;
-					}
-					else if(i == 1 && next.equals("+")) {
-						System.out.println(elementsList.get(nextIndex - 1));
-						System.out.println(elementsList.get(nextIndex + 1));
-						int res = Integer.parseInt(elementsList.get(nextIndex - 1)) +
-								  Integer.parseInt(elementsList.get(nextIndex + 1));
-						elementsList.set(nextIndex, String.valueOf(res));
-						elementsList.remove(nextIndex + 1);
-						elementsList.remove(nextIndex - 1);
-						break;
-					}
-					else if(i == 1 && next.equals("-")) {
-						System.out.println(elementsList.get(nextIndex - 1));
-						System.out.println(elementsList.get(nextIndex + 1));
-						int res = Integer.parseInt(elementsList.get(nextIndex - 1)) -
-								  Integer.parseInt(elementsList.get(nextIndex + 1));
-						elementsList.set(nextIndex, String.valueOf(res));
-						elementsList.remove(nextIndex + 1);
-						elementsList.remove(nextIndex - 1);
-						break;
-					}
+			//if (elementsList.size() == 1) {
+			//	break;
+			//}
+			ListIterator<String> it = elementsList.listIterator();
+			while (it.hasNext()) {
+				int nextIndex = it.nextIndex();
+				String next = it.next();
+				if (i == 0 && next.equals("*")) {
+					executeOperation(nextIndex, "*");
+					i = 2;
+					break;
+				} 
+				else if (i == 0 && next.equals("/")) {
+					executeOperation(nextIndex, "/");
+					i = 2;
+					break;
+				} 
+				else if (i == 1 && next.equals("+")) {
+					executeOperation(nextIndex, "+");
+					i = 2;
+					break;
+				} 
+				else if (i == 1 && next.equals("-")) {
+					executeOperation(nextIndex, "-");
+					i = 2;
+					break;
 				}
-			
+			}
 		}
+        }
 		return elementsList.get(0);
 	}
-
+	
+	private static void executeOperation(int nextIndex, String operation) throws Exception {
+		if (nextIndex - 1 < 0 || nextIndex + 1 >= elementsList.size()) {
+			throw new Exception("Invalid input string");
+		}
+		System.out.println(elementsList.get(nextIndex - 1));
+		System.out.println(elementsList.get(nextIndex + 1));
+		int res = 0;
+		try {
+			if(operation.equals("*")) {
+				res = Integer.parseInt(elementsList.get(nextIndex - 1)) *
+					  Integer.parseInt(elementsList.get(nextIndex + 1));
+			}
+			else if(operation.equals("/")) {
+				if(Integer.parseInt(elementsList.get(nextIndex + 1)) == 0) {
+					throw new Exception("Cannot divide by zero");
+				}
+				res = Integer.parseInt(elementsList.get(nextIndex - 1)) /
+					  Integer.parseInt(elementsList.get(nextIndex + 1));
+			}
+			else if(operation.equals("+")) {
+				res = Integer.parseInt(elementsList.get(nextIndex - 1)) +
+					  Integer.parseInt(elementsList.get(nextIndex + 1));
+			}
+			else if(operation.equals("-")) {
+				res = Integer.parseInt(elementsList.get(nextIndex - 1)) -
+					  Integer.parseInt(elementsList.get(nextIndex + 1));
+			}
+		} 
+		catch (NumberFormatException nfe) {
+			throw new Exception("Invalid operand");
+		}
+		elementsList.set(nextIndex, String.valueOf(res));
+		elementsList.remove(nextIndex + 1);
+		elementsList.remove(nextIndex - 1);
+	}
 }
